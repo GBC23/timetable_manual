@@ -102,18 +102,21 @@ subjects = df['Subject'].unique()
 for subject in subjects:
     print(f"Select a time slot for {subject}. Available options are:")
     subject_data = df[df['Subject'] == subject]
-    for index, row in subject_data.iterrows():
-        print(f"Option {index + 1}: Days - {row['Days']}, Hours - {row['Hours']}")
+    options = list(subject_data.iterrows())
+    for i, (index, row) in enumerate(options):
+        print(f"Option {i + 1}: Days - {row['Days']}, Hours - {row['Hours']}")
     
     while True:
-        user_input = input(f"Enter the option number for {subject} or type 'skip' to skip this subject: ")
+        user_input = input(f"Enter the option number for {subject}, 'skip' to skip this subject, or 'done' to finish: ")
         if user_input.lower() == 'skip':
+            break
+        if user_input.lower() == 'done':
             break
         try:
             option_index = int(user_input) - 1
-            if option_index < 0 or option_index >= len(subject_data):
+            if option_index < 0 or option_index >= len(options):
                 raise ValueError
-            selected_row = subject_data.iloc[option_index]
+            selected_row = options[option_index][1]
             days = selected_row['Days'].split(',')
             hours = list(map(int, selected_row['Hours'].split(',')))
             if is_time_slot_available(days, hours):
@@ -124,6 +127,8 @@ for subject in subjects:
                 print("The selected time slot is not available. Please choose another option.")
         except ValueError:
             print("Invalid input. Please enter a valid option number.")
+    if user_input.lower() == 'done':
+        break
 
 # Generate a color map for subjects
 unique_subjects = df['Subject'].unique()
@@ -156,4 +161,4 @@ fig.tight_layout()
 image_filename = "timetable_colored_with_time.png"
 plt.savefig(image_filename)
 
-image_filename
+print(f"Timetable saved as {image_filename}")
